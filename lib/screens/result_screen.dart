@@ -47,7 +47,7 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  late Future<List<Shop>> _shops;
+  late Future<HotPepperSearchResult> _shops;
   late String _keyword;
   late int? _range;
   late Position? _position;
@@ -64,7 +64,7 @@ class _ResultScreenState extends State<ResultScreen> {
     _shops = _load();
   }
 
-  Future<List<Shop>> _load() => widget.api.search(
+  Future<HotPepperSearchResult> _load() => widget.api.search(
         keyword: _keyword,
         range: _range ?? 3,
         latitude: _position?.latitude,
@@ -106,10 +106,10 @@ class _ResultScreenState extends State<ResultScreen> {
               onRemove: _removeCondition,
             ),
             Expanded(child: _buildResults()),
-            FutureBuilder<List<Shop>>(
+            FutureBuilder<HotPepperSearchResult>(
               future: _shops,
               builder: (context, snapshot) => _ResultCount(
-                count: snapshot.data?.length,
+                count: snapshot.data?.totalResults,
               ),
             ),
           ],
@@ -119,7 +119,7 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   Widget _buildResults() {
-    return FutureBuilder<List<Shop>>(
+    return FutureBuilder<HotPepperSearchResult>(
       future: _shops,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -131,7 +131,7 @@ class _ResultScreenState extends State<ResultScreen> {
             action: _reload,
           );
         }
-        final shops = [...(snapshot.data ?? const <Shop>[])];
+        final shops = [...(snapshot.data?.shops ?? const <Shop>[])];
         shops.sort(_compareShops);
         if (shops.isEmpty) return const _Message(message: '条件に一致する店舗がありません。');
         return ListView.separated(
@@ -314,25 +314,50 @@ class _Toolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final narrow = MediaQuery.sizeOf(context).width < 420;
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-      child: Row(
+      child: Flex(
+        direction: narrow ? Axis.vertical : Axis.horizontal,
         children: [
-          Expanded(
-            child: _ToolbarButton(
-              icon: Icons.tune,
-              label: '絞り込み条件変更',
-              onPressed: onChangeFilters,
+          if (narrow)
+            SizedBox(
+              width: double.infinity,
+              child: _ToolbarButton(
+                icon: Icons.tune,
+                label: '絞り込み条件変更',
+                onPressed: onChangeFilters,
+              ),
+            )
+          else
+            Expanded(
+              child: _ToolbarButton(
+                icon: Icons.tune,
+                label: '絞り込み条件変更',
+                onPressed: onChangeFilters,
+              ),
             ),
+          SizedBox(
+            width: narrow ? 0 : 8,
+            height: narrow ? 8 : 0,
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _ToolbarButton(
-              icon: Icons.swap_vert,
-              label: '並び替え',
-              onPressed: onSort,
+          if (narrow)
+            SizedBox(
+              width: double.infinity,
+              child: _ToolbarButton(
+                icon: Icons.swap_vert,
+                label: '並び替え',
+                onPressed: onSort,
+              ),
+            )
+          else
+            Expanded(
+              child: _ToolbarButton(
+                icon: Icons.swap_vert,
+                label: '並び替え',
+                onPressed: onSort,
+              ),
             ),
-          ),
         ],
       ),
     );

@@ -13,6 +13,16 @@ class HotPepperApiException implements Exception {
   String toString() => message;
 }
 
+class HotPepperSearchResult {
+  const HotPepperSearchResult({
+    required this.shops,
+    required this.totalResults,
+  });
+
+  final List<Shop> shops;
+  final int totalResults;
+}
+
 class HotPepperApi {
   HotPepperApi({http.Client? client}) : _client = client ?? http.Client();
 
@@ -35,7 +45,7 @@ class HotPepperApi {
   ];
   final http.Client _client;
 
-  Future<List<Shop>> search({
+  Future<HotPepperSearchResult> search({
     String? keyword,
     String? genre,
     int range = 3,
@@ -87,10 +97,16 @@ class HotPepperApi {
     final decoded = jsonDecode(response.body) as Map<String, dynamic>;
     final results = decoded['results'] as Map<String, dynamic>? ?? {};
     final shops = results['shop'] as List<dynamic>? ?? const [];
-    return shops
+    final parsedShops = shops
         .whereType<Map<String, dynamic>>()
         .map(Shop.fromJson)
         .toList(growable: false);
+    final totalResults = int.tryParse('${results['results_available'] ?? ''}') ??
+        parsedShops.length;
+    return HotPepperSearchResult(
+      shops: parsedShops,
+      totalResults: totalResults,
+    );
   }
 
   void dispose() => _client.close();

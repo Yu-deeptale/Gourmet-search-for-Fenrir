@@ -64,6 +64,9 @@ class _SearchScreenState extends State<SearchScreen> {
   static const _inputFillColor = Color(0xFFF3F3F3);
   static const _inputTextColor = Color(0xFF013C17);
   static const _inputWidth = 300.0;
+
+  double _inputWidthFor(BuildContext context) =>
+      (MediaQuery.sizeOf(context).width - 40).clamp(0.0, _inputWidth);
   static const _prefectureCodesByRegion = <String, List<String>>{
     '北海道': ['01'],
     '東北': ['02', '03', '04', '05', '06', '07'],
@@ -419,7 +422,7 @@ class _SearchScreenState extends State<SearchScreen> {
         builder: (context, setDialogState) {
           return AlertDialog(
             content: SizedBox(
-              width: _inputWidth,
+              width: _inputWidthFor(context),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -493,22 +496,25 @@ class _SearchScreenState extends State<SearchScreen> {
           shrinkWrap: true,
           padding: const EdgeInsets.all(20),
           children: [
-            Transform.translate(
-              offset: const Offset(0, -50),
-              child: const Text(
-                'Gourmet Vote',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'Jua',
-                  fontSize: 50,
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'Gourmet Vote',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Jua',
+                    fontSize: 50,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
             ),
             const SizedBox(height: 24),
             Center(
               child: SizedBox(
-                width: _inputWidth,
+                width: _inputWidthFor(context),
                 child: TextField(
                   controller: _keywordController,
                   textAlign: TextAlign.left,
@@ -528,7 +534,7 @@ class _SearchScreenState extends State<SearchScreen> {
             const SizedBox(height: 16),
             Center(
               child: SizedBox(
-                width: _inputWidth,
+                width: _inputWidthFor(context),
                 child: GestureDetector(
                   onTap: _showConditionDialog,
                   child: InputDecorator(
@@ -549,7 +555,7 @@ class _SearchScreenState extends State<SearchScreen> {
             const SizedBox(height: 16),
             Center(
               child: SizedBox(
-                width: _inputWidth,
+                width: _inputWidthFor(context),
                 child: DropdownMenu<int>(
                   initialSelection: _range,
                   expandedInsets: EdgeInsets.zero,
@@ -572,7 +578,7 @@ class _SearchScreenState extends State<SearchScreen> {
             const SizedBox(height: 16),
             Center(
               child: SizedBox(
-                width: _inputWidth,
+                width: _inputWidthFor(context),
                 child: SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: const Text('現在地を使用'),
@@ -585,7 +591,7 @@ class _SearchScreenState extends State<SearchScreen> {
             if (!_useCurrentLocation) ...[
               Center(
                 child: SizedBox(
-                  width: _inputWidth,
+                  width: _inputWidthFor(context),
                   child: GestureDetector(
                     onTap: _showLocationDialog,
                     child: InputDecorator(
@@ -607,7 +613,7 @@ class _SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: 16),
               Center(
                 child: SizedBox(
-                  width: _inputWidth,
+                  width: _inputWidthFor(context),
                   child: OutlinedButton.icon(
                     onPressed: _locating ? null : _getLocation,
                     icon: _locating
@@ -625,7 +631,7 @@ class _SearchScreenState extends State<SearchScreen> {
             const SizedBox(height: 40),
             Center(
               child: SizedBox(
-                width: _inputWidth,
+                width: _inputWidthFor(context),
                 child: FilledButton.icon(
                   onPressed: _search,
                   style: FilledButton.styleFrom(

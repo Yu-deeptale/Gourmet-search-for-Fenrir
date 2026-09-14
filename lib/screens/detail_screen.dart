@@ -95,15 +95,17 @@ class _DetailScreenState extends State<DetailScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           if (widget.shop.photoUrl.isNotEmpty)
-            CachedNetworkImage(
-              imageUrl: widget.shop.photoUrl,
-              height: 220,
-              fit: BoxFit.cover,
-              placeholder: (_, __) => const SizedBox(
-                  height: 220,
-                  child: Center(child: CircularProgressIndicator())),
-              errorWidget: (_, __, ___) => const SizedBox(
-                  height: 220, child: Icon(Icons.restaurant, size: 64)),
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: CachedNetworkImage(
+                imageUrl: widget.shop.photoUrl,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (_, __, ___) =>
+                    const Center(child: Icon(Icons.restaurant, size: 64)),
+              ),
             ),
           const SizedBox(height: 16),
           Text(widget.shop.name,
@@ -119,28 +121,37 @@ class _DetailScreenState extends State<DetailScreen> {
           if (widget.shop.budget.isNotEmpty)
             _InfoRow(icon: Icons.payments, text: widget.shop.budget),
           const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => setState(() => _bookmarked = !_bookmarked),
-                  icon: Icon(
-                      _bookmarked ? Icons.bookmark : Icons.bookmark_border),
-                  label: Text(_bookmarked ? '保存済み' : 'ブックマーク'),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.white.withValues(alpha: 0.8),
-                  ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final narrow = constraints.maxWidth < 360;
+              final bookmark = OutlinedButton.icon(
+                onPressed: () => setState(() => _bookmarked = !_bookmarked),
+                icon: Icon(
+                  _bookmarked ? Icons.bookmark : Icons.bookmark_border,
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: _showRatingDialog,
-                  icon: const Icon(Icons.star),
-                  label: Text(_overallRating == null ? '評価する' : '評価しました！'),
+                label: Text(_bookmarked ? '保存済み' : 'ブックマーク'),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white.withValues(alpha: 0.8),
                 ),
-              ),
-            ],
+              );
+              final rating = FilledButton.icon(
+                onPressed: _showRatingDialog,
+                icon: const Icon(Icons.star),
+                label: Text(_overallRating == null ? '評価する' : '評価しました！'),
+              );
+              return narrow
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [bookmark, const SizedBox(height: 8), rating],
+                    )
+                  : Row(
+                      children: [
+                        Expanded(child: bookmark),
+                        const SizedBox(width: 12),
+                        Expanded(child: rating),
+                      ],
+                    );
+            },
           ),
           const SizedBox(height: 12),
           FilledButton.icon(
@@ -185,34 +196,36 @@ class _DetailScreenState extends State<DetailScreen> {
               fontWeight: FontWeight.bold,
             ),
             title: const Text('Vote'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _RatingRow(
-                  label: '店の総合評価',
-                  value: overall,
-                  onChanged: (value) => setDialogState(() => overall = value),
-                ),
-                if (selectedConditions.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 12),
-                    child: Text(
-                      '追加した検索条件はありません。',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  )
-                else
-                  for (final condition in selectedConditions) ...[
-                    const SizedBox(height: 16),
-                    _RatingRow(
-                      label: _conditionLabels[condition]!,
-                      description: _conditionCriteria[condition]!,
-                      value: accuracy[condition]!,
-                      onChanged: (value) =>
-                          setDialogState(() => accuracy[condition] = value),
-                    ),
-                  ],
-              ],
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _RatingRow(
+                    label: '店の総合評価',
+                    value: overall,
+                    onChanged: (value) => setDialogState(() => overall = value),
+                  ),
+                  if (selectedConditions.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 12),
+                      child: Text(
+                        '追加した検索条件はありません。',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    )
+                  else
+                    for (final condition in selectedConditions) ...[
+                      const SizedBox(height: 16),
+                      _RatingRow(
+                        label: _conditionLabels[condition]!,
+                        description: _conditionCriteria[condition]!,
+                        value: accuracy[condition]!,
+                        onChanged: (value) =>
+                            setDialogState(() => accuracy[condition] = value),
+                      ),
+                    ],
+                ],
+              ),
             ),
             actions: [
               TextButton(
