@@ -18,6 +18,21 @@ class HotPepperApi {
 
   static const _endpoint =
       'https://webservice.recruit.co.jp/hotpepper/gourmet/v1/';
+  static const _conditionKeys = [
+    'wifi',
+    'free_drink',
+    'free_food',
+    'private_room',
+    'tatami',
+    'card',
+    'barrier_free',
+    'night_view',
+    'karaoke',
+    'lunch',
+    'midnight',
+    'pet',
+    'child',
+  ];
   final http.Client _client;
 
   Future<List<Shop>> search({
@@ -41,7 +56,7 @@ class HotPepperApi {
     final parameters = <String, String>{
       'key': apiKey,
       'format': 'json',
-      'count': '50',
+      'count': '101',
       'range': '$range',
     };
     if (keyword != null && keyword.trim().isNotEmpty) {
@@ -56,8 +71,8 @@ class HotPepperApi {
     if (cityCode != null && cityCode.isNotEmpty) {
       parameters['city'] = cityCode;
     }
-    for (final entry in conditions.entries) {
-      if (entry.value) parameters[entry.key] = 'Y';
+    for (final key in _conditionKeys) {
+      parameters[key] = conditions[key] == true ? '1' : '0';
     }
     if (latitude != null && longitude != null) {
       parameters['lat'] = '$latitude';
