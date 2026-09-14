@@ -134,17 +134,13 @@ class _ResultScreenState extends State<ResultScreen> {
         final shops = [...(snapshot.data ?? const <Shop>[])];
         shops.sort(_compareShops);
         if (shops.isEmpty) return const _Message(message: '条件に一致する店舗がありません。');
-        return RefreshIndicator(
-          onRefresh: _reload,
-          child: ListView.separated(
-            padding: const EdgeInsets.all(12),
-            physics: const AlwaysScrollableScrollPhysics(),
-            itemCount: shops.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) => _ShopTile(
-              shop: shops[index],
-              position: _position,
-            ),
+        return ListView.separated(
+          padding: const EdgeInsets.all(12),
+          itemCount: shops.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          itemBuilder: (context, index) => _ShopTile(
+            shop: shops[index],
+            position: _position,
           ),
         );
       },
