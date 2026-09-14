@@ -10,17 +10,21 @@ class ResultScreen extends StatefulWidget {
   const ResultScreen({
     required this.api,
     required this.keyword,
-    required this.genre,
     required this.range,
     required this.position,
+    this.prefectureCode,
+    this.cityCode,
+    this.conditions = const {},
     super.key,
   });
 
   final HotPepperApi api;
   final String keyword;
-  final String genre;
   final int range;
   final Position? position;
+  final String? prefectureCode;
+  final String? cityCode;
+  final Map<String, bool> conditions;
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
@@ -37,10 +41,12 @@ class _ResultScreenState extends State<ResultScreen> {
 
   Future<List<Shop>> _load() => widget.api.search(
         keyword: widget.keyword,
-        genre: widget.genre,
         range: widget.range,
         latitude: widget.position?.latitude,
         longitude: widget.position?.longitude,
+        prefectureCode: widget.prefectureCode,
+        cityCode: widget.cityCode,
+        conditions: widget.conditions,
       );
 
   @override
@@ -93,10 +99,13 @@ class _ShopTile extends StatelessWidget {
                 width: 72,
                 height: 72,
                 fit: BoxFit.cover,
-                errorWidget: (_, __, ___) => const Icon(Icons.restaurant, size: 48),
+                errorWidget: (_, __, ___) =>
+                    const Icon(Icons.restaurant, size: 48),
               ),
         title: Text(shop.name, maxLines: 2, overflow: TextOverflow.ellipsis),
-        subtitle: Text([shop.address, shop.budget].where((text) => text.isNotEmpty).join('\n')),
+        subtitle: Text([shop.address, shop.budget]
+            .where((text) => text.isNotEmpty)
+            .join('\n')),
         isThreeLine: true,
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => DetailScreen(shop: shop)),
