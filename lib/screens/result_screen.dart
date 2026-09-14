@@ -141,6 +141,7 @@ class _ResultScreenState extends State<ResultScreen> {
           itemBuilder: (context, index) => _ShopTile(
             shop: shops[index],
             position: _position,
+            conditions: _conditions,
           ),
         );
       },
@@ -426,9 +427,14 @@ class _ResultCount extends StatelessWidget {
 }
 
 class _ShopTile extends StatelessWidget {
-  const _ShopTile({required this.shop, required this.position});
+  const _ShopTile({
+    required this.shop,
+    required this.position,
+    required this.conditions,
+  });
   final Shop shop;
   final Position? position;
+  final Map<String, bool> conditions;
 
   @override
   Widget build(BuildContext context) {
@@ -446,7 +452,9 @@ class _ShopTile extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => DetailScreen(shop: shop)),
+          MaterialPageRoute(
+            builder: (_) => DetailScreen(shop: shop, conditions: conditions),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
