@@ -4,6 +4,7 @@ class Shop {
     required this.name,
     required this.address,
     required this.access,
+    this.openingHours = '',
     required this.catchPhrase,
     required this.budget,
     required this.photoUrl,
@@ -16,6 +17,7 @@ class Shop {
   final String name;
   final String address;
   final String access;
+  final String? openingHours;
   final String catchPhrase;
   final String budget;
   final String photoUrl;
@@ -33,8 +35,10 @@ class Shop {
       name: '${json['name'] ?? '店舗名不明'}',
       address: '${json['address'] ?? '住所不明'}',
       access: '${json['access'] ?? ''}',
+      openingHours: json['open']?.toString(),
       catchPhrase: '${json['catch'] ?? ''}',
-      budget: (json['budget'] as Map<String, dynamic>?)?['name']?.toString() ?? '',
+      budget:
+          (json['budget'] as Map<String, dynamic>?)?['name']?.toString() ?? '',
       photoUrl: '${urls['l'] ?? urls['m'] ?? ''}',
       lat: lat,
       lng: lng,

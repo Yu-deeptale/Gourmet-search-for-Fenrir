@@ -118,6 +118,11 @@ class _DetailScreenState extends State<DetailScreen> {
           _InfoRow(icon: Icons.location_on, text: widget.shop.address),
           if (widget.shop.access.isNotEmpty)
             _InfoRow(icon: Icons.train, text: widget.shop.access),
+          if (widget.shop.openingHours?.isNotEmpty ?? false)
+            _InfoRow(
+              icon: Icons.schedule,
+              text: widget.shop.openingHours ?? '',
+            ),
           if (widget.shop.budget.isNotEmpty)
             _InfoRow(icon: Icons.payments, text: widget.shop.budget),
           const SizedBox(height: 24),
