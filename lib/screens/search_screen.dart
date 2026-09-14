@@ -147,17 +147,7 @@ class _SearchScreenState extends State<SearchScreen> {
         return;
       }
       final position = await Geolocator.getCurrentPosition();
-      final placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-      final placemark = placemarks.isEmpty ? null : placemarks.first;
-      final location = placemark == null
-          ? null
-          : [
-              placemark.administrativeArea,
-              placemark.locality ?? placemark.subAdministrativeArea,
-            ].whereType<String>().where((value) => value.isNotEmpty).join(':');
+      final location = await _getLocationName(position);
       if (mounted) {
         setState(() {
           _position = position;
@@ -168,6 +158,27 @@ class _SearchScreenState extends State<SearchScreen> {
       }
     } finally {
       if (mounted) setState(() => _locating = false);
+    }
+  }
+
+  Future<String?> _getLocationName(Position position) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      final placemark = placemarks.isEmpty ? null : placemarks.first;
+      return placemark == null
+          ? null
+          : [
+              placemark.administrativeArea,
+              placemark.locality ?? placemark.subAdministrativeArea,
+            ].whereType<String>().where((value) => value.isNotEmpty).join(':');
+    } on MissingPluginException {
+      // The geocoding plugin is unavailable on unsupported targets.
+      return null;
+    } on PlatformException {
+      return null;
     }
   }
 
@@ -386,6 +397,14 @@ class _SearchScreenState extends State<SearchScreen> {
     return '$_selectedRegion・$prefecture・$city';
   }
 
+  String get _selectedConditionsLabel {
+    final selected = _conditions.entries
+        .where((entry) => entry.value)
+        .map((entry) => _conditionLabels[entry.key] ?? entry.key)
+        .toList(growable: false);
+    return selected.isEmpty ? '選択してください' : selected.join('、');
+  }
+
   Future<void> _showConditionDialog() async {
     final draft = Map<String, bool>.from(_conditions);
     const groups = <String, List<String>>{
@@ -512,8 +531,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 width: _inputWidth,
                 child: GestureDetector(
                   onTap: _showConditionDialog,
-                  child: const InputDecorator(
-                    decoration: InputDecoration(
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
                       filled: true,
                       fillColor: _inputFillColor,
                       labelText: '条件絞り込み',
@@ -521,7 +540,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: Text('選択してください'),
+                      child: Text(_selectedConditionsLabel),
                     ),
                   ),
                 ),
